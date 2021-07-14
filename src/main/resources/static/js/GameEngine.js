@@ -43,9 +43,22 @@ GameEngine.prototype.load = function () {
 
 GameEngine.prototype.initCanvas = function () {
     this.menu = new Menu(this.stage);
-    this.menu.show();
+    //this.menu.show();
     this.stage.update();
 };
+
+//TODO
+GameEngine.prototype.getToken = function () {
+    const name = $("#input-name").val();
+
+    if(name !== "") {
+        const token = gMatchMaker.getToken(name);
+        if (token !== null) {
+            this.menu.show();
+            this.stage.update();
+        }
+    }
+}
 
 GameEngine.prototype.startGame = function () {
     this.menu.hide();

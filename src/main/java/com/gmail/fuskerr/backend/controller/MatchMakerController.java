@@ -1,6 +1,5 @@
 package com.gmail.fuskerr.backend.controller;
 
-import com.gmail.fuskerr.backend.domain.SessionId;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

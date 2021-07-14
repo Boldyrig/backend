@@ -1,12 +1,41 @@
 package com.gmail.fuskerr.backend.domain;
 
+import javax.persistence.*;
+
+@Entity
+//"user" is a keyword in postgresql
+@Table(name = "person")
 public class User {
-    private long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
+
+    @Column(
+            name = "name",
+            nullable = false
+    )
     private String name;
 
-    public User(long id, String name) {
+    @Column(
+            name = "token",
+            nullable = false,
+            unique = true
+    )
+    private String token;
+
+    public User(Long id, String name, String token) {
         this.id = id;
         this.name = name;
+        this.token = token;
+    }
+
+    public User(String name, String token) {
+        this.name = name;
+        this.token = token;
+    }
+
+    public User() {
+
     }
 
     @Override
@@ -27,11 +56,15 @@ public class User {
         return result;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
     public String getName() {
         return name;
+    }
+
+    public String getToken() {
+        return token;
     }
 }

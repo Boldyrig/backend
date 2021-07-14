@@ -12,6 +12,13 @@ var ClusterSetting = function () {
         port: '8080',
         path: '/matchmaker/join'
     };
+
+    this.register = {
+        protocol: 'http',
+        host: 'localhost',
+        port: '8080',
+        path: '/registration'
+    }
 };
 
 ClusterSetting.prototype.gameServerUrl = function() {
@@ -21,6 +28,10 @@ ClusterSetting.prototype.gameServerUrl = function() {
 ClusterSetting.prototype.matchMakerUrl = function() {
     return makeUrl(this.matchMaker)
 };
+
+ClusterSetting.prototype.registerUrl = function () {
+    return makeUrl(this.register)
+}
 
 function makeUrl(data) {
     return data['protocol'] + "://" + data['host'] + ":" + data['port'] + data['path']

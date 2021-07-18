@@ -47,13 +47,12 @@ GameEngine.prototype.initCanvas = function () {
     this.stage.update();
 };
 
-//TODO
 GameEngine.prototype.getToken = function () {
     const name = $("#input-name").val();
 
     if(name !== "") {
-        const token = gMatchMaker.getToken(name);
-        if (token !== null) {
+        const tokenIsPresent = gMatchMaker.getToken(name);
+        if (tokenIsPresent) {
             this.menu.show();
             this.stage.update();
         }

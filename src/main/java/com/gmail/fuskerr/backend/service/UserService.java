@@ -5,6 +5,9 @@ import com.gmail.fuskerr.backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.security.SecureRandom;
+import java.util.Base64;
+
 @Service
 public class UserService {
 
@@ -16,10 +19,16 @@ public class UserService {
     }
 
     public String saveUser(String name) {
-        //generate token
-        final String token = String.valueOf((int)(Math.random()*100));
-        User u = userRepository.save(new User(name, token));
-        System.out.println(u);
+        final String token = generateToken();
+        userRepository.save(new User(name, token));
         return token;
+    }
+
+    //TODO переписать
+    private String generateToken() {
+        final SecureRandom secureRandom = new SecureRandom();
+        byte[] bytes = new byte[24];
+        secureRandom.nextBytes(bytes);
+        return Base64.getUrlEncoder().encodeToString(bytes);
     }
 }

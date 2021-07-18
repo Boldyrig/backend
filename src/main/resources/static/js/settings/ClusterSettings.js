@@ -17,7 +17,7 @@ var ClusterSetting = function () {
         protocol: 'http',
         host: 'localhost',
         port: '8080',
-        path: '/registration'
+        path: '/authentication'
     }
 };
 

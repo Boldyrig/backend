@@ -12,6 +12,8 @@ var MatchMaker = function (clusterSetting) {
         crossDomain: true,
         async: false
     };
+
+    this.token = null;
 };
 
 MatchMaker.prototype.getSessionId = function () {
@@ -19,28 +21,26 @@ MatchMaker.prototype.getSessionId = function () {
         .toString(16)
         .substring(1);
 
-    this.settings.data = name;
+    var token = this.token;
+    this.settings.data = {token};
     let sessionId = -1;
     $.ajax(this.settings).done(function(id) {
         sessionId = id;
     }).fail(function() {
         alert("Matchmaker request failed");
     });
-
     return sessionId;
 };
 
-//TODO
 MatchMaker.prototype.getToken = function (name) {
-    this.register.data = name;
-
-    let userToken = null;
-    $.ajax(this.register).done(function(token) {
-        userToken = token
+    this.register.data = {name};
+    const self = this;
+    $.ajax(this.register).done(function(responseToken) {
+         self.token = responseToken.token;
     }).fail(function() {
-        //TODO
+        alert('try again...');
     });
-    return userToken;
+    return this.token !== null;
 }
 
 gMatchMaker = new MatchMaker(gClusterSettings);

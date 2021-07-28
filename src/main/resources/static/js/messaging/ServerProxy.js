@@ -4,7 +4,18 @@ var ServerProxy = function () {
         'POSSESS': gMessageBroker.handlePossess,
         'GAME_OVER': gMessageBroker.handleGameOver
     };
+
+    this.messages = {
+        'TOKEN': 'TOKEN'
+    }
 };
+
+ServerProxy.prototype.dataPayload = function(topic, data) {
+    return JSON.stringify({
+        topic,
+        data
+    });
+}
 
 ServerProxy.prototype.setupMessaging = function() {
     var self = this;
@@ -31,7 +42,9 @@ ServerProxy.prototype.setupMessaging = function() {
 // Присоединяемся к серверу по сокету
 // у WebSocketSession в Java имеется функция getURI() с помощью которого этот "Хвост" получается
 ServerProxy.prototype.connectToGameServer = function(gameId) {
-    this.socket = new WebSocket(gClusterSettings.gameServerUrl() + "?gameId=" + gameId + "&name=NKOHA");
+    this.socket = new WebSocket(gClusterSettings.gameServerUrl() + "?token=" + gMatchMaker.token);
+    //this.socket = new SockJS(gClusterSettings.gameServerUrl());
+    //this.stomp = new StompJs();
     var self = this;
     this.socket.onmessage = function (event) {
         var msg = JSON.parse(event.data);
@@ -41,7 +54,10 @@ ServerProxy.prototype.connectToGameServer = function(gameId) {
         self.handler[msg.topic](msg);
     };
 
-    this.socket.onopen = function () { };
+    this.socket.onopen = function () {
+        console.log(self.dataPayload(123, 123));
+        self.socket.send(self.dataPayload(self.messages.TOKEN, gMatchMaker.token));
+    };
 
     this.socket.onclose = function (event) {
         console.log('Code: ' + event.code + ' cause: ' + event.reason);
@@ -53,3 +69,15 @@ ServerProxy.prototype.connectToGameServer = function(gameId) {
 
     this.setupMessaging();
 };
+
+
+/*ServerProxy.prototype.connectToGameServer = function() {
+    this.socket = new SockJS(gClusterSettings.gameServerUrl());
+    this.stomp = Stomp.over(socket);
+    stomp.connect({}, function(frame) {
+        console.log("connect " + frame);
+        stomp.subscribe("", function(param) {
+            console.log(param);
+        });
+    });
+}*/

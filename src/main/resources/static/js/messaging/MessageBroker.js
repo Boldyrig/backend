@@ -113,12 +113,19 @@ MessageBroker.prototype.mirrorPosition = function (origin) {
     }
 };
 
+MessageBroker.prototype.token = function (token) {
+    var template = {
+        topic: "TOKEN",
+        data: token
+    };
+
+    return JSON.stringify(template);
+}
+
 MessageBroker.prototype.move = function (direction) {
     var template = {
         topic: "MOVE",
-        data: {
-            direction: direction.toUpperCase()
-        }
+        direction: direction.toUpperCase()
     };
 
     return JSON.stringify(template);
@@ -126,8 +133,7 @@ MessageBroker.prototype.move = function (direction) {
 
 MessageBroker.prototype.plantBomb = function () {
     var template = {
-        topic: "PLANT_BOMB",
-        data: {}
+        topic: "PLANT_BOMB"
     };
 
     return JSON.stringify(template);
@@ -136,8 +142,7 @@ MessageBroker.prototype.plantBomb = function () {
 // Experimental
 MessageBroker.prototype.jump = function () {
     var template = {
-        topic: "JUMP",
-        data: {}
+        topic: "JUMP"
     };
 
     return JSON.stringify(template);

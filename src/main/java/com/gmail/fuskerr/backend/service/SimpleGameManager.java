@@ -2,6 +2,7 @@ package com.gmail.fuskerr.backend.service;
 
 import com.gmail.fuskerr.backend.domain.GameSession;
 import com.gmail.fuskerr.backend.domain.User;
+import com.gmail.fuskerr.backend.requestbody.MessageAction;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
@@ -51,5 +52,21 @@ public class SimpleGameManager implements GameManager {
     @Override
     public Set<GameSession> getGames() {
         return games;
+    }
+
+    @Override
+    public void addToInputQueue(MessageAction messageAction, String token) {
+        for(GameSession gameSession : games) {
+            //if(gameSession.isFinished()) break;
+            for(User user : gameSession.getPlayers()) {
+                if(user.getToken().equals(token)) {
+                    gameSession.addInputQueue(messageAction);
+                    for(MessageAction action : gameSession.pullActionsFromQueue()) {
+                        System.out.println(action);
+                    }
+                    return;
+                }
+            }
+        }
     }
 }

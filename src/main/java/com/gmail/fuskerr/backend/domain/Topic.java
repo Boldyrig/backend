@@ -1,5 +1,5 @@
 package com.gmail.fuskerr.backend.domain;
 
 public enum Topic {
-    TOKEN
+    TOKEN, MOVE, JUMP, PLANT_BOMB
 }

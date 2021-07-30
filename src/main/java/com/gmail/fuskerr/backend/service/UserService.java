@@ -24,6 +24,10 @@ public class UserService {
         return token;
     }
 
+    public User getUserByToken(String token) {
+        return userRepository.getUserByToken(token);
+    }
+
     //TODO переписать
     private String generateToken() {
         final SecureRandom secureRandom = new SecureRandom();

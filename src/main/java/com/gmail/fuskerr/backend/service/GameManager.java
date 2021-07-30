@@ -2,6 +2,7 @@ package com.gmail.fuskerr.backend.service;
 
 import com.gmail.fuskerr.backend.domain.GameSession;
 import com.gmail.fuskerr.backend.domain.User;
+import com.gmail.fuskerr.backend.requestbody.MessageAction;
 
 import java.util.Set;
 
@@ -11,4 +12,5 @@ public interface GameManager {
     boolean connect(User user, int gameId);
     GameSession getIncompleteGame(int countOfPlayers);
     Set<GameSession> getGames();
+    void addToInputQueue(MessageAction messageAction, String token);
 }

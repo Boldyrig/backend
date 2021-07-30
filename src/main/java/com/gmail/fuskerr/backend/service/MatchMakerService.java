@@ -2,7 +2,6 @@ package com.gmail.fuskerr.backend.service;
 
 import com.gmail.fuskerr.backend.domain.GameSession;
 import com.gmail.fuskerr.backend.domain.User;
-import com.gmail.fuskerr.backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -11,12 +10,12 @@ import org.springframework.stereotype.Service;
 public class MatchMakerService {
     private final int DEFAULT_COUNT_OF_PLAYERS_IN_GAME = 2;
 
-    private UserRepository userRepository;
+    private UserService userService;
     private GameManager gameManager;
 
     @Autowired
-    public void setUserRepository(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public void setUserService(UserService userService) {
+        this.userService = userService;
     }
 
     @Autowired
@@ -27,7 +26,7 @@ public class MatchMakerService {
     }
 
     public int join(String token) throws Exception {
-        User user = userRepository.getUserByToken(token);
+        User user = userService.getUserByToken(token);
         if(user == null) {
             throw new Exception("invalid token");
         }

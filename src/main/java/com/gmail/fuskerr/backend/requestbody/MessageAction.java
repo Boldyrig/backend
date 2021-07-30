@@ -1,16 +1,16 @@
 package com.gmail.fuskerr.backend.requestbody;
 
-import com.gmail.fuskerr.backend.domain.Action;
+import com.gmail.fuskerr.backend.domain.Direction;
 import com.gmail.fuskerr.backend.domain.Topic;
 
 public class MessageAction {
     private final Topic topic;
-    private final Action action;
+    private final Direction direction;
     private final String data;
 
-    public MessageAction(Topic topic, Action action, String data) {
+    public MessageAction(Topic topic, Direction direction, String data) {
         this.topic = topic;
-        this.action = action;
+        this.direction = direction;
         this.data = data;
     }
 
@@ -18,11 +18,20 @@ public class MessageAction {
         return topic;
     }
 
-    public Action getAction() {
-        return action;
+    public Direction getDirection() {
+        return direction;
     }
 
     public String getData() {
         return data;
+    }
+
+    @Override
+    public String toString() {
+        return "MessageAction{" +
+                "topic=" + topic +
+                ", direction=" + direction +
+                ", data='" + data + '\'' +
+                '}';
     }
 }

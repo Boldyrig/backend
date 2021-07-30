@@ -4,10 +4,6 @@ var ServerProxy = function () {
         'POSSESS': gMessageBroker.handlePossess,
         'GAME_OVER': gMessageBroker.handleGameOver
     };
-
-    this.messages = {
-        'TOKEN': 'TOKEN'
-    }
 };
 
 ServerProxy.prototype.dataPayload = function(topic, data) {
@@ -55,8 +51,7 @@ ServerProxy.prototype.connectToGameServer = function(gameId) {
     };
 
     this.socket.onopen = function () {
-        console.log(self.dataPayload(123, 123));
-        self.socket.send(self.dataPayload(self.messages.TOKEN, gMatchMaker.token));
+        self.socket.send(gMessageBroker.token(gMatchMaker.token));
     };
 
     this.socket.onclose = function (event) {

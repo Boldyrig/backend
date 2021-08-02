@@ -27,7 +27,7 @@ public class GameSessionController {
     public void processMessage(MessageAction messageAction, String token) {
         User user = userService.getUserByToken(token);
         if(messageAction.getTopic() != null && user != null) {
-            gameManager.addToInputQueue(messageAction, token);
+            gameManager.addToInputQueue(messageAction, user.getToken());
         }
     }
 }

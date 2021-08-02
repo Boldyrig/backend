@@ -1,21 +1,35 @@
 package com.gmail.fuskerr.backend.service;
 
 import com.gmail.fuskerr.backend.domain.GameSession;
+import com.gmail.fuskerr.backend.domain.ReplicaItem;
+import com.gmail.fuskerr.backend.domain.Topic;
 import com.gmail.fuskerr.backend.domain.User;
 import com.gmail.fuskerr.backend.requestbody.MessageAction;
+import com.gmail.fuskerr.backend.responsebody.WebSocketResponse;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
+import org.springframework.beans.factory.annotation.Autowired;
+import com.gmail.fuskerr.backend.configuration.WebSocketReplicaSender;
 
 @Component
 @Qualifier("simpleGameManager")
 public class SimpleGameManager implements GameManager {
     private final Set<GameSession> games = new HashSet<>();
     private final AtomicInteger lastGameId = new AtomicInteger(0);
+    
+    private WebSocketReplicaSender sender;
 
+    @Autowired
+    public void setSender(WebSocketReplicaSender sender) {
+        this.sender = sender;
+    }
+    
     @Override
     public GameSession create(int countOfPlayers) {
         GameSession gameSession = new GameSession(lastGameId.getAndIncrement(), countOfPlayers);
@@ -25,7 +39,13 @@ public class SimpleGameManager implements GameManager {
 
     @Override
     public void start(int gameId) {
-
+        for(GameSession session : games) {
+            if(session.getGameId() == gameId) {
+                session.startGame((List<ReplicaItem> replica) -> {
+                    sender.sendMessage(replica, session.getPlayers());
+                });
+            }
+        }
     }
 
     @Override
@@ -61,9 +81,6 @@ public class SimpleGameManager implements GameManager {
             for(User user : gameSession.getPlayers()) {
                 if(user.getToken().equals(token)) {
                     gameSession.addInputQueue(messageAction);
-                    for(MessageAction action : gameSession.pullActionsFromQueue()) {
-                        System.out.println(action);
-                    }
                     return;
                 }
             }

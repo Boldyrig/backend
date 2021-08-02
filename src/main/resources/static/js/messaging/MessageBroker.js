@@ -1,11 +1,11 @@
 var MessageBroker = function () {
     this.handler = {
-        'Pawn': this.handlePawn,
-        'Bomb': this.handleBomb,
-        'Wood': this.handleTile,
-        'Wall': this.handleTile,
-        'Fire': this.handleFire,
-        'Bonus': this.handleBonus
+        'PAWN': this.handlePawn,
+        'BOMB': this.handleBomb,
+        'WOOD': this.handleTile,
+        'WALL': this.handleTile,
+        'FIRE': this.handleFire,
+        'BONUS': this.handleBonus
     }
 };
 
@@ -23,8 +23,7 @@ var MessageBroker = function () {
 // msg при выводе в консоль должно выглядеть примерно так
 // "[{\"id\":383,\"type\":\"Pawn\",\"position\":{\"x\":800,\"y\":32},\"alive\":true,\"direction\":\"\"}]"
 MessageBroker.prototype.handleReplica = function (msg) {
-    var gameObjects = JSON.parse(msg.data);
-    gGameEngine.game.gc(gameObjects);
+    gGameEngine.game.gc(msg.data);
 };
 
 MessageBroker.prototype.handleGameOver = function (msg) {

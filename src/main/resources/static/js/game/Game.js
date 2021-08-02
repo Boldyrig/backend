@@ -74,7 +74,7 @@ Game.prototype.gc = function (gameObjects) {
 
         // Суть в том, что Пешка и Бомба живут ровно столько, сколько мы отправляем их в реплике (В отличие от других
         // объектов, таких как ящики)
-        if (obj.type === 'Pawn' || obj.type === 'Bomb') {
+        if (obj.type === 'PAWN' || obj.type === 'BOMB') {
             gMessageBroker.handler[obj.type](obj);
             survivors.add(obj.id);
             continue;
@@ -96,7 +96,7 @@ Game.prototype.gc = function (gameObjects) {
 
         // здесь мы добавляем обычгые объекты, кстати условие на проверку Pawn вроде лишнее, так как в начале мы
         // проверяем на равенство
-        if (!wasDeleted && obj.type !== 'Pawn') {
+        if (!wasDeleted && obj.type !== 'PAWN') {
             gMessageBroker.handler[obj.type](obj);
         }
     }

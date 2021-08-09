@@ -16,6 +16,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.gmail.fuskerr.backend.configuration.WebSocketReplicaSender;
+import com.gmail.fuskerr.backend.domain.Player;
+import org.springframework.web.socket.TextMessage;
 
 @Component
 @Qualifier("simpleGameManager")
@@ -42,7 +44,7 @@ public class SimpleGameManager implements GameManager {
         for(GameSession session : games) {
             if(session.getGameId() == gameId) {
                 session.startGame((List<ReplicaItem> replica) -> {
-                    sender.sendMessage(replica, session.getPlayers());
+                    sender.sendMessage(replica, session.getTokens());
                 });
             }
         }
@@ -52,7 +54,11 @@ public class SimpleGameManager implements GameManager {
     public boolean connect(User user, int gameId) {
         for(GameSession game: games) {
             if(game.getGameId() == gameId && game.getCountOfPlayers() - game.getPlayers().size() > 0) {
-                game.joinPlayer(user);
+                game.joinPlayer(new Player(
+                        user.getId(),
+                        user.getName(),
+                        user.getToken()
+                ));
                 return true;
             }
         }
@@ -60,7 +66,7 @@ public class SimpleGameManager implements GameManager {
     }
 
     @Override
-    public GameSession getIncompleteGame(int countOfPlayers) {
+    public GameSession getIncompleteGame() {
         for(GameSession game: games) {
             if(game.getCountOfPlayers() - game.getPlayers().size() > 0) {
                 return game;
@@ -77,13 +83,30 @@ public class SimpleGameManager implements GameManager {
     @Override
     public void addToInputQueue(MessageAction messageAction, String token) {
         for(GameSession gameSession : games) {
-            //if(gameSession.isFinished()) break;
-            for(User user : gameSession.getPlayers()) {
-                if(user.getToken().equals(token)) {
-                    gameSession.addInputQueue(messageAction);
-                    return;
-                }
+            if(gameSession.isFinished()) break;
+            if(gameSession.getPlayer(token) != null) {
+                gameSession.addInputQueue(messageAction);
+                break;
             }
         }
     }
+
+    @Override
+    public void playerIsReady(String playerToken) {
+        for(GameSession game : games) {
+            Player player = game.getPlayer(playerToken);
+            if(player != null) {
+                player.setReady(true);
+                if(game.isAllReady()) {
+                    Set<String> tokens = game.getTokens();
+                    game.startGame((List<ReplicaItem> replica) -> {
+                        sender.sendMessage(replica, tokens);
+                    });
+                }
+                break;
+            }
+        }
+    }
+    
+    
 }

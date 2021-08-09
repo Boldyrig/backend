@@ -31,12 +31,14 @@ public class InputActionHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        super.afterConnectionEstablished(session);
+        String path = session.getUri().getQuery();
+        String token = path.substring(path.indexOf("token=") + 6);
+        sessions.put(session, token);
     }
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
-        super.afterConnectionClosed(session, status);
+        sessions.remove(session);
     }
 
     //TODO внедрить AOP
@@ -44,11 +46,12 @@ public class InputActionHandler extends TextWebSocketHandler {
     protected void handleTextMessage(WebSocketSession session, TextMessage message) {
         MessageAction json = gson.fromJson(message.getPayload(), MessageAction.class);
         switch(json.getTopic()) {
-            case TOKEN:
-                sessions.put(session, json.getData());
-                break;
             case MOVE:
+            case PLANT_BOMB:
                 gameSessionController.processMessage(json, sessions.get(session));
+                break;
+            case READY:
+                gameSessionController.userConectToSocket(sessions.get(session));
                 break;
             default:
                 // TODO ошибка

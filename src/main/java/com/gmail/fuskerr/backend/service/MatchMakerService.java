@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class MatchMakerService {
-    private final int DEFAULT_COUNT_OF_PLAYERS_IN_GAME = 2;
+    private final int DEFAULT_COUNT_OF_PLAYERS_IN_GAME = 1;
 
     private UserService userService;
     private GameManager gameManager;
@@ -30,14 +30,11 @@ public class MatchMakerService {
         if(user == null) {
             throw new Exception("invalid token");
         }
-        GameSession game = gameManager.getIncompleteGame(DEFAULT_COUNT_OF_PLAYERS_IN_GAME);
+        GameSession game = gameManager.getIncompleteGame();
         if(game == null) {
             game = gameManager.create(DEFAULT_COUNT_OF_PLAYERS_IN_GAME);
         }
         gameManager.connect(user, game.getGameId());
-        if(game.getPlayers().size() == DEFAULT_COUNT_OF_PLAYERS_IN_GAME) {
-            gameManager.start(game.getGameId());
-        }
         return game.getGameId();
     }
 }

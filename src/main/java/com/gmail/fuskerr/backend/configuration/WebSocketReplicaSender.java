@@ -8,6 +8,6 @@ import org.springframework.web.socket.TextMessage;
 
 public interface WebSocketReplicaSender {
     void sendMessage(List<ReplicaItem> message,  String token);
-    void sendMessage(List<ReplicaItem> message, Set<User> users);
+    void sendMessage(List<ReplicaItem> message, Set<String> tokens);
     void sendMessageBroadcast(TextMessage message);
 }

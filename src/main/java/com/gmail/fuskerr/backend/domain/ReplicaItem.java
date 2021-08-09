@@ -3,7 +3,7 @@ package com.gmail.fuskerr.backend.domain;
 public class ReplicaItem {
     private final long id;
     private final ItemType type;
-    private final Position position;
+    protected Position position;
 
     public ReplicaItem(long id, ItemType type, Position position) {
         this.id = id;

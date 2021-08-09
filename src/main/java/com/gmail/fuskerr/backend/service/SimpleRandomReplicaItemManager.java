@@ -18,7 +18,8 @@ public class SimpleRandomReplicaItemManager implements ReplicaManager {
     @Override
     public List<ReplicaItem> getReplica() {
         if(replica.isEmpty()) {
-            fillReplica(20, 20, replica);
+            //fillReplica(864, 544, replica);
+            fillReplica(100, 100, replica);
         }
         return replica;
     }

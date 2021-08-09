@@ -67,10 +67,10 @@ public class WebSocketConfig implements WebSocketConfigurer {
             }
 
             @Override
-            public void sendMessage(List<ReplicaItem> message, Set<User> users) {
-                users.forEach(user -> {
+            public void sendMessage(List<ReplicaItem> message, Set<String> tokens) {
+                tokens.forEach(token -> {
                     for(Map.Entry<WebSocketSession, String> entry : inputActionHandler.getSessions().entrySet()) {
-                        if(user.getToken().equals(entry.getValue())) {
+                        if(token.equals(entry.getValue())) {
                             WebSocketResponse response = new WebSocketResponse(Topic.REPLICA, message);
                             TextMessage wsMessage = new TextMessage(gson.toJson(response));
                             try {

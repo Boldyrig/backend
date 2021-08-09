@@ -51,7 +51,7 @@ ServerProxy.prototype.connectToGameServer = function(gameId) {
     };
 
     this.socket.onopen = function () {
-        self.socket.send(gMessageBroker.token(gMatchMaker.token));
+        self.socket.send(gMessageBroker.ready());
     };
 
     this.socket.onclose = function (event) {

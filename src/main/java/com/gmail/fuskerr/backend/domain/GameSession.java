@@ -1,28 +1,33 @@
 package com.gmail.fuskerr.backend.domain;
 
-import com.gmail.fuskerr.backend.configuration.WebSocketReplicaSender;
+import com.gmail.fuskerr.backend.game.Replicator;
 import com.gmail.fuskerr.backend.requestbody.MessageAction;
-import com.gmail.fuskerr.backend.service.ReplicaManager;
 import java.util.ArrayList;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 public class GameSession {
     private final int gameId;
     private final int countOfPlayers;
     private boolean finished = true;
-    private Set<User> players = ConcurrentHashMap.newKeySet();
+    private Set<Player> players = ConcurrentHashMap.newKeySet();
     private final Queue<MessageAction> inputQueue = new ConcurrentLinkedQueue<>();
     
+    private final Replicator replicator = new Replicator();
+    
+    private final long MILLISECONDS_IN_SECOND = 1000;
+    private final int FRAME_PER_SECOND = 60;
+    private final long MILLISECONDS_IN_FRAME = MILLISECONDS_IN_SECOND / FRAME_PER_SECOND;
+    
     private List<ReplicaItem> replica = new ArrayList<>();
+    private final int WIDTH = 80;
+    private final int HEIGHT = 50;
     
     public GameSession(int gameId, int countOfPlayers) {
         this.gameId = gameId;
@@ -31,54 +36,79 @@ public class GameSession {
     
     public void startGame(ConsumerList<ReplicaItem> consumer) {
         if(countOfPlayers > players.size()) return;
-        consumer.accept(getReplica());
-        Thread thread = new Thread();
+        finished = false;
+        replicator.init(List.of(new Position(40, 40), new Position(760, 460)));
+        players.forEach(user -> {
+            replicator.addPawn(user.getToken());
+        });
+        Thread thread = new Thread(() -> {
+            System.out.println(replicator.getReplica());
+            consumer.accept(replicator.getReplica());
+
+            while(!finished) {
+                long startTime = System.currentTimeMillis();
+                List<MessageAction> actions = pullActionsFromQueue();
+                actions.forEach(action -> {
+                    switch(action.getTopic()) {
+                        case MOVE:
+                            replicator.movePawn(action.getData(), action.getDirection());
+                            break;
+                        case PLANT_BOMB:
+                            replicator.addBomb(action.getData());
+                            break;
+                        default:
+                            break;
+                    }
+                });
+                consumer.accept(replicator.getChangedReplica());
+                replicator.clearChangedReplica();
+                long endTime = System.currentTimeMillis();
+                // Оставшееся время до конца текущего фрейма
+                long lastTime = MILLISECONDS_IN_FRAME - (endTime - startTime);
+                if(lastTime > 0) {
+                    try {
+                        Thread.sleep(lastTime);
+                    } catch (InterruptedException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            }
+        }, "GameThread - " + gameId);
+        thread.start();
     }
 
-    public void joinPlayer(User user) {
-        if(user != null) {
-            players.add(user);
+    public void joinPlayer(Player player) {
+        if(player != null) {
+            players.add(player);
         }
+    }
+    
+    public Player getPlayer(String token) {
+        for(Player player : players) {
+            if(player.getToken().equals(token)) {
+                return player;
+            }
+        }
+        return null;
+    }
+    
+    public boolean isAllReady() {
+        for(Player player : players) {
+            if(!player.isReady()) return false;
+        }
+        return true;
     }
 
     public void addInputQueue(MessageAction action) {
         inputQueue.add(action);
     }
 
-    public MessageAction[] pullActionsFromQueue() {
-        MessageAction[] result = new MessageAction[inputQueue.size()];
-        for(int i = 0; i < inputQueue.size(); i++) {
-            result[i] = inputQueue.poll();
+    public List<MessageAction> pullActionsFromQueue() {
+        List<MessageAction> result = new ArrayList<>();
+        while(!inputQueue.isEmpty()) {
+            result.add(inputQueue.poll());
         }
         return result;
-    }
-    
-    public List<ReplicaItem> getReplica() {
-        if(replica.isEmpty()) {
-            fillReplica(20, 20, replica);
-        }
-        return replica;
-    }
-
-    private void fillReplica(int width, int height, List<ReplicaItem> replica) {
-        int id = 0;
-        for(int x = 0; x < width; x++) {
-            for(int y = 0; y < height; y++) {
-                replica.add(new ReplicaItem(
-                        id,
-                        ItemType.WOOD,
-                        new Position(x, y)
-                ));
-                id++;
-            }
-        }
-        replica.add(new Pawn(
-                id,
-                ItemType.PAWN,
-                new Position(30, 30),
-                Direction.RIGHT,
-                true
-        ));
     }
 
     public int getGameId() {
@@ -89,11 +119,17 @@ public class GameSession {
         return countOfPlayers;
     }
 
-    public Set<User> getPlayers() {
+    public Set<Player> getPlayers() {
         return players;
     }
 
     public boolean isFinished() {
         return finished;
+    }
+    
+    public Set<String> getTokens() {
+        return players.stream()
+                .map(player -> player.getToken())
+                .collect(Collectors.toSet());
     }
 }

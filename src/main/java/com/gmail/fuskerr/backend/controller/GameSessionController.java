@@ -30,4 +30,11 @@ public class GameSessionController {
             gameManager.addToInputQueue(messageAction, user.getToken());
         }
     }
+    
+    public void userConectToSocket(String token) {
+        User user = userService.getUserByToken(token);
+        if(user != null) {
+            gameManager.playerIsReady(token);
+        }
+    }
 }

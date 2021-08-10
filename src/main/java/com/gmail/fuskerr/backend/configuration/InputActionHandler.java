@@ -1,7 +1,7 @@
 package com.gmail.fuskerr.backend.configuration;
 
 import com.gmail.fuskerr.backend.controller.GameSessionController;
-import com.gmail.fuskerr.backend.requestbody.MessageAction;
+import com.gmail.fuskerr.backend.core.model.MessageActionModel;
 import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -44,14 +44,14 @@ public class InputActionHandler extends TextWebSocketHandler {
     //TODO внедрить AOP
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) {
-        MessageAction json = gson.fromJson(message.getPayload(), MessageAction.class);
+        MessageActionModel json = gson.fromJson(message.getPayload(), MessageActionModel.class);
         switch(json.getTopic()) {
             case MOVE:
             case PLANT_BOMB:
                 gameSessionController.processMessage(json, sessions.get(session));
                 break;
             case READY:
-                gameSessionController.userConectToSocket(sessions.get(session));
+                gameSessionController.userConnect(sessions.get(session));
                 break;
             default:
                 // TODO ошибка

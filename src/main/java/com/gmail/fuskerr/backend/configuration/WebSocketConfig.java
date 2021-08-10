@@ -1,9 +1,9 @@
 package com.gmail.fuskerr.backend.configuration;
 
-import com.gmail.fuskerr.backend.domain.ReplicaItem;
-import com.gmail.fuskerr.backend.domain.Topic;
-import com.gmail.fuskerr.backend.domain.User;
-import com.gmail.fuskerr.backend.responsebody.WebSocketResponse;
+import com.gmail.fuskerr.backend.core.gateway.MessageSender;
+import com.gmail.fuskerr.backend.core.entity.ReplicaItem;
+import com.gmail.fuskerr.backend.core.type.Topic;
+import com.gmail.fuskerr.backend.core.model.MessageReplicaModel;
 import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -16,9 +16,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.springframework.web.socket.WebSocketMessage;
 
 @Configuration
 @EnableWebSocket
@@ -38,24 +35,13 @@ public class WebSocketConfig implements WebSocketConfigurer {
     }
 
     @Bean
-    public WebSocketReplicaSender webSocketSender() {
-        return new WebSocketReplicaSender(){
-            @Override
-            public void sendMessageBroadcast(TextMessage message) {
-                for(WebSocketSession webSocketSession : inputActionHandler.getSessions().keySet()) {
-                    try {
-                        webSocketSession.sendMessage(message);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-
+    public MessageSender webSocketSender() {
+        return new MessageSender(){
             @Override
             public void sendMessage(List<ReplicaItem> message, String token) {
                 for(Map.Entry<WebSocketSession, String> entry : inputActionHandler.getSessions().entrySet()) {
                     if(entry.getValue().equals(token)) {
-                        WebSocketResponse response = new WebSocketResponse(Topic.REPLICA, message);
+                        MessageReplicaModel response = new MessageReplicaModel(Topic.REPLICA, message);
                         TextMessage wsMessage = new TextMessage(gson.toJson(response));
                         try {
                             entry.getKey().sendMessage(wsMessage);
@@ -71,7 +57,7 @@ public class WebSocketConfig implements WebSocketConfigurer {
                 tokens.forEach(token -> {
                     for(Map.Entry<WebSocketSession, String> entry : inputActionHandler.getSessions().entrySet()) {
                         if(token.equals(entry.getValue())) {
-                            WebSocketResponse response = new WebSocketResponse(Topic.REPLICA, message);
+                            MessageReplicaModel response = new MessageReplicaModel(Topic.REPLICA, message);
                             TextMessage wsMessage = new TextMessage(gson.toJson(response));
                             try {
                                 entry.getKey().sendMessage(wsMessage);

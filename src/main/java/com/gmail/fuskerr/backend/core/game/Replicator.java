@@ -1,21 +1,18 @@
 package com.gmail.fuskerr.backend.core.game;
 
-import com.gmail.fuskerr.backend.core.entity.Bomb;
+import com.gmail.fuskerr.backend.core.entity.*;
 import com.gmail.fuskerr.backend.core.type.Direction;
 import com.gmail.fuskerr.backend.core.type.ItemType;
-import com.gmail.fuskerr.backend.core.entity.Pawn;
-import com.gmail.fuskerr.backend.core.entity.Position;
-import com.gmail.fuskerr.backend.core.entity.ReplicaItem;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Random;
+
+import java.util.*;
+import java.util.stream.Stream;
 
 public class Replicator {
     private final List<ReplicaItem> replica = new ArrayList<>();
     // В changedReplica только изменившиеся объекты (так ожидает клиент)
     private final List<ReplicaItem> changedReplica = new ArrayList<>();
     private final List<Bomb> bombs = new ArrayList<>();
+    private final List<Fire> fires = new ArrayList<>();
     private final List<Pawn> pawns = new ArrayList<>();
     
     private int id = 0;
@@ -110,12 +107,23 @@ public class Replicator {
                 bomb = new Bomb(
                     id++,
                     pawn.getPosition(),
-                    180
+                    180,
+                        3
                 );
                 bombs.add(bomb);
             }
         }
         return bomb;
+    }
+
+    public Fire addFire(Position position) {
+        Fire fire = new Fire(
+                id++,
+                position,
+                60
+        );
+        fires.add(fire);
+        return fire;
     }
     
     public void removeBomb(Bomb bomb) {
@@ -125,6 +133,17 @@ public class Replicator {
     public void removeAllBombs(Collection<Bomb> bombs) {
         this.bombs.removeAll(bombs);
     }
+
+    public void removeWood(ReplicaItem replicaItem) {
+        if(replicaItem != null && replicaItem.getType() == ItemType.WOOD) {
+            replica.remove(replicaItem);
+            changedReplica.add(replicaItem);
+        }
+    }
+
+    public void removeAllFires(Collection<Fire> fires) {
+        this.fires.removeAll(fires);
+    }
     
     public List<ReplicaItem> getChangedReplica() {
         pawns.forEach(pawn -> {
@@ -133,15 +152,42 @@ public class Replicator {
         bombs.forEach(bomb -> {
             changedReplica.add(bomb);
         });
+        fires.forEach(fire -> {
+            changedReplica.add(fire);
+        });
         return changedReplica;
     }
 
     public List<Bomb> getBombs() {
         return bombs;
     }
+
+    public List<Fire> getFires() {
+        return fires;
+    }
     
     public void clearChangedReplica() {
         changedReplica.clear();
+    }
+
+    public ReplicaItem getReplicaItemByPosition(Position position) {
+        ReplicaItem result = null;
+        int x = position.getX();
+        int y = position.getY();
+
+        Stream<ReplicaItem> items = Stream.concat(replica.stream(), pawns.stream());
+        Iterator<ReplicaItem> iterator = items.iterator();
+        while(iterator.hasNext()) {
+            ReplicaItem item = iterator.next();
+            int targetX = item.getPosition().getX();
+            int targetY = item.getPosition().getY();
+            if(x >= targetX && x <= targetX + TILE_SIZE &&
+                    y >= targetY && y <= targetY + TILE_SIZE) {
+                result = item;
+                break;
+            }
+        }
+        return result;
     }
     
     // В реплике находятся только объекты, в ней нет "пустот"

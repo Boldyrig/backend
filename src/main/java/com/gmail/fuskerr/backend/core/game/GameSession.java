@@ -12,6 +12,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 public class GameSession {
@@ -21,7 +22,7 @@ public class GameSession {
     private Set<Player> players = ConcurrentHashMap.newKeySet();
     private final Queue<MessageActionModel> inputQueue = new ConcurrentLinkedQueue<>();
     
-    private final List<Tickable> tickables = new ArrayList<>();
+    private final List<Tickable> tickables = new CopyOnWriteArrayList<>();
     
     private final Replicator replicator = new Replicator();
     

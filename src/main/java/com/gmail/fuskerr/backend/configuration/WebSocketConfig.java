@@ -36,7 +36,7 @@ public class WebSocketConfig implements WebSocketConfigurer {
 
     @Bean
     public MessageSender webSocketSender() {
-        return new MessageSender(){
+        return new MessageSender() {
             @Override
             public void sendMessage(List<ReplicaItem> message, String token) {
                 for(Map.Entry<WebSocketSession, String> entry : inputActionHandler.getSessions().entrySet()) {

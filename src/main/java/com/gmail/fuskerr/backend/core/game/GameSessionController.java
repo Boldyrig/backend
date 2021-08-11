@@ -1,18 +1,17 @@
-package com.gmail.fuskerr.backend.controller;
+package com.gmail.fuskerr.backend.core.game;
 
 import com.gmail.fuskerr.backend.core.boundary.UserConnectionBoundary;
 import com.gmail.fuskerr.backend.core.entity.User;
+import com.gmail.fuskerr.backend.core.gateway.UserRepositoryGateway;
 import com.gmail.fuskerr.backend.core.model.MessageActionModel;
-import com.gmail.fuskerr.backend.core.game.GameManager;
-import com.gmail.fuskerr.backend.repository.JpaUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Component;
 
-@Controller
+@Component
 public class GameSessionController implements UserConnectionBoundary {
     private GameManager gameManager;
-    private JpaUser userGateway;
+    private UserRepositoryGateway userGateway;
 
     @Autowired
     @Qualifier("simpleGameManager")
@@ -21,7 +20,7 @@ public class GameSessionController implements UserConnectionBoundary {
     }
 
     @Autowired
-    public void setUserService(JpaUser userGateway) {
+    public void setUserService(UserRepositoryGateway userGateway) {
         this.userGateway = userGateway;
     }
 

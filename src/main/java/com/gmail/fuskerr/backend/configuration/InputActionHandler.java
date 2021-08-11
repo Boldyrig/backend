@@ -1,6 +1,7 @@
 package com.gmail.fuskerr.backend.configuration;
 
-import com.gmail.fuskerr.backend.controller.GameSessionController;
+import com.gmail.fuskerr.backend.core.boundary.UserConnectionBoundary;
+import com.gmail.fuskerr.backend.core.game.GameSessionController;
 import com.gmail.fuskerr.backend.core.model.MessageActionModel;
 import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,10 +19,10 @@ public class InputActionHandler extends TextWebSocketHandler {
     private final Map<WebSocketSession, String> sessions = new ConcurrentHashMap<>(); // Map : Session -> Token
     private Gson gson = new Gson();
 
-    private GameSessionController gameSessionController;
+    private UserConnectionBoundary gameSessionController;
 
     @Autowired
-    public void setGameSessionController(GameSessionController gameSessionController) {
+    public void setUserConnectionBoundary(UserConnectionBoundary gameSessionController) {
         this.gameSessionController = gameSessionController;
     }
 

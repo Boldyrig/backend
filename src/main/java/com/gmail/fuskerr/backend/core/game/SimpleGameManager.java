@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +18,7 @@ import com.gmail.fuskerr.backend.core.entity.Player;
 @Component
 @Qualifier("simpleGameManager")
 public class SimpleGameManager implements GameManager {
-    private final Set<GameSession> games = new HashSet<>();
+    private final Set<GameSession> games = ConcurrentHashMap.newKeySet();
     private final AtomicInteger lastGameId = new AtomicInteger(0);
     
     private MessageSender sender;

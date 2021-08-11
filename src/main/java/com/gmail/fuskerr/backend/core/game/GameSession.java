@@ -21,6 +21,8 @@ public class GameSession {
     private Set<Player> players = ConcurrentHashMap.newKeySet();
     private final Queue<MessageActionModel> inputQueue = new ConcurrentLinkedQueue<>();
     
+    private final List<Tickable> tickables = new ArrayList<>();
+    
     private final Replicator replicator = new Replicator();
     
     private final long MILLISECONDS_IN_SECOND = 1000;
@@ -43,25 +45,12 @@ public class GameSession {
         players.forEach(user -> {
             replicator.addPawn(user.getToken());
         });
+        registerTickable(new GameMechanic(replicator, this));
         Thread thread = new Thread(() -> {
-            System.out.println(replicator.getReplica());
             consumer.accept(replicator.getReplica());
-
             while(!finished) {
                 long startTime = System.currentTimeMillis();
-                List<MessageActionModel> actions = pullActionsFromQueue();
-                actions.forEach(action -> {
-                    switch(action.getTopic()) {
-                        case MOVE:
-                            replicator.movePawn(action.getData(), action.getDirection());
-                            break;
-                        case PLANT_BOMB:
-                            replicator.addBomb(action.getData());
-                            break;
-                        default:
-                            break;
-                    }
-                });
+                act();
                 consumer.accept(replicator.getChangedReplica());
                 replicator.clearChangedReplica();
                 long endTime = System.currentTimeMillis();
@@ -133,5 +122,17 @@ public class GameSession {
         return players.stream()
                 .map(Player::getToken)
                 .collect(Collectors.toSet());
+    }
+    
+    public void registerTickable(Tickable tickable) {
+        tickables.add(tickable);
+    }
+    
+    public void unregisterTickable(Tickable tickable) {
+        tickables.remove(tickable);
+    }
+    
+    private void act() {
+        tickables.forEach(Tickable::tick);
     }
 }

@@ -1,11 +1,13 @@
 package com.gmail.fuskerr.backend.core.game;
 
+import com.gmail.fuskerr.backend.core.entity.Bomb;
 import com.gmail.fuskerr.backend.core.type.Direction;
 import com.gmail.fuskerr.backend.core.type.ItemType;
 import com.gmail.fuskerr.backend.core.entity.Pawn;
 import com.gmail.fuskerr.backend.core.entity.Position;
 import com.gmail.fuskerr.backend.core.entity.ReplicaItem;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 
@@ -13,7 +15,7 @@ public class Replicator {
     private final List<ReplicaItem> replica = new ArrayList<>();
     // В changedReplica только изменившиеся объекты (так ожидает клиент)
     private final List<ReplicaItem> changedReplica = new ArrayList<>();
-    private final List<ReplicaItem> bombs = new ArrayList<>();
+    private final List<Bomb> bombs = new ArrayList<>();
     private final List<Pawn> pawns = new ArrayList<>();
     
     private int id = 0;
@@ -101,17 +103,27 @@ public class Replicator {
         }
     }
     
-    public void addBomb(String token) {
+    public Bomb addBomb(String token) {
+        Bomb bomb = null;
         for(Pawn pawn : pawns) {
             if(pawn.isAlive() && pawn.getToken().equals(token)) {
-                ReplicaItem bomb = new ReplicaItem(
+                bomb = new Bomb(
                     id++,
-                    ItemType.BOMB,
-                    pawn.getPosition());
+                    pawn.getPosition(),
+                    180
+                );
                 bombs.add(bomb);
-                break;
             }
         }
+        return bomb;
+    }
+    
+    public void removeBomb(Bomb bomb) {
+        bombs.remove(bomb);
+    }
+    
+    public void removeAllBombs(Collection<Bomb> bombs) {
+        this.bombs.removeAll(bombs);
     }
     
     public List<ReplicaItem> getChangedReplica() {
@@ -122,6 +134,10 @@ public class Replicator {
             changedReplica.add(bomb);
         });
         return changedReplica;
+    }
+
+    public List<Bomb> getBombs() {
+        return bombs;
     }
     
     public void clearChangedReplica() {

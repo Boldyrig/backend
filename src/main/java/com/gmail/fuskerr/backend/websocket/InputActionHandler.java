@@ -1,4 +1,4 @@
-package com.gmail.fuskerr.backend.configuration;
+package com.gmail.fuskerr.backend.websocket;
 
 import com.gmail.fuskerr.backend.core.boundary.UserConnectionBoundary;
 import com.gmail.fuskerr.backend.core.game.GameSessionController;

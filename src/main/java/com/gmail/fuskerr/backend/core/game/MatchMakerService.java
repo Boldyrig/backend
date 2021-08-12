@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class MatchMakerService implements MatchMakerBoundary {
-    private static final int DEFAULT_COUNT_OF_PLAYERS_IN_GAME = 1;
 
     private UserRepositoryGateway userRepository;
     private GameManager gameManager;
@@ -34,16 +33,12 @@ public class MatchMakerService implements MatchMakerBoundary {
     }
 
     @Override
-    public int join(String token) {
+    public int join(String token) throws Exception {
         User user = userRepository.getUserByToken(token);
-//        if(user == null) {
-//            throw new Exception("invalid token");
-//        }
-        GameSession game = gameManager.getIncompleteGame();
-        if(game == null) {
-            game = gameManager.addGameSession(DEFAULT_COUNT_OF_PLAYERS_IN_GAME);
+        if(user == null) {
+            throw new Exception("invalid token");
         }
-        gameManager.connect(userMapper.create(user), game.getGameId());
-        return game.getGameId();
+        int gameId = gameManager.connect(userMapper.create(user));
+        return gameId;
     }
 }

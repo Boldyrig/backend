@@ -1,5 +1,6 @@
 package com.gmail.fuskerr.backend.controller;
 
+import com.gmail.fuskerr.backend.core.gateway.UserRepositoryGateway;
 import com.gmail.fuskerr.backend.core.model.UserNameModel;
 import com.gmail.fuskerr.backend.core.model.TokenModel;
 import com.gmail.fuskerr.backend.repository.JpaUser;
@@ -12,11 +13,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class UserController {
 
-    private JpaUser jpaUser;
+    private UserRepositoryGateway repository;
 
     @Autowired
-    public void setUserService(JpaUser jpaUser) {
-        this.jpaUser = jpaUser;
+    public void setUserService(UserRepositoryGateway repository) {
+        this.repository = repository;
     }
 
     @PostMapping(
@@ -27,7 +28,7 @@ public class UserController {
     public TokenModel authentication(UserNameModel userName) throws Exception {
         String name = userName.getName();
         if(name != null && !name.isEmpty()) {
-            String token = jpaUser.save(userName.getName());
+            String token = repository.save(userName.getName());
             return new TokenModel(token);
         }
         throw new Exception("invalid name");

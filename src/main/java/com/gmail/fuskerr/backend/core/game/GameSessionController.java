@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class GameSessionController implements UserConnectionBoundary {
     private GameManager gameManager;
-    private UserRepositoryGateway userGateway;
+    private UserRepositoryGateway userRepository;
 
     @Autowired
     @Qualifier("simpleGameManager")
@@ -20,13 +20,13 @@ public class GameSessionController implements UserConnectionBoundary {
     }
 
     @Autowired
-    public void setUserService(UserRepositoryGateway userGateway) {
-        this.userGateway = userGateway;
+    public void setUserService(UserRepositoryGateway userRepository) {
+        this.userRepository = userRepository;
     }
 
     @Override
     public void processMessage(MessageActionModel messageAction, String token) {
-        User user = userGateway.getUserByToken(token);
+        User user = userRepository.getUserByToken(token);
         if(messageAction.getTopic() != null && user != null) {
             gameManager.addToInputQueue(messageAction, user.getToken());
         }
@@ -34,7 +34,7 @@ public class GameSessionController implements UserConnectionBoundary {
 
     @Override
     public void userConnect(String token) {
-        User user = userGateway.getUserByToken(token);
+        User user = userRepository.getUserByToken(token);
         if(user != null) {
             gameManager.playerIsReady(token);
         }

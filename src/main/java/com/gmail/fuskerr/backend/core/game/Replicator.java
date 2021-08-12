@@ -20,7 +20,7 @@ public class Replicator {
     private final int WIDTH = 800;
     private final int HEIGHT = 512;
     
-    private final int TILE_SIZE = 32;
+    public static final int TILE_SIZE = 32;
     
     private final Position spawnA = new Position(32, 32);
     private final Position spawnB = new Position(768, 480);

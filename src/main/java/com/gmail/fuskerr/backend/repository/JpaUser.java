@@ -1,12 +1,12 @@
 package com.gmail.fuskerr.backend.repository;
 
 import com.gmail.fuskerr.backend.core.entity.User;
-import com.gmail.fuskerr.backend.core.gateway.UserRepositoryGateway;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
 import java.util.Base64;
+import com.gmail.fuskerr.backend.core.gateway.UserRepositoryGateway;
 
 @Service
 public class JpaUser implements UserRepositoryGateway {

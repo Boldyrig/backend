@@ -22,18 +22,20 @@ public class SimpleGameManager implements GameManager {
     private final AtomicInteger lastGameId = new AtomicInteger(0);
     
     private MessageSender sender;
+    
+    private static final int DEFAULT_COUNT_OF_PLAYERS_IN_GAME = 1;
 
     @Autowired
     public void setSender(MessageSender sender) {
         this.sender = sender;
     }
     
-    @Override
-    public GameSession addGameSession(int countOfPlayers) {
-        GameSession gameSession = new GameSession(lastGameId.getAndIncrement(), countOfPlayers);
-        games.add(gameSession);
-        return gameSession;
-    }
+//    @Override
+//    public GameSession addGameSession(int countOfPlayers) {
+//        GameSession gameSession = new GameSession(lastGameId.getAndIncrement(), countOfPlayers);
+//        games.add(gameSession);
+//        return gameSession;
+//    }
 
     @Override
     public void start(int gameId) {
@@ -47,25 +49,28 @@ public class SimpleGameManager implements GameManager {
     }
 
     @Override
-    public boolean connect(Player player, int gameId) {
-        for(GameSession game: games) {
-            if(game.getGameId() == gameId && game.getCountOfPlayers() - game.getPlayers().size() > 0) {
-                game.joinPlayer(player);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    @Override
-    public GameSession getIncompleteGame() {
+    public synchronized int connect(Player player) {
         for(GameSession game: games) {
             if(game.getCountOfPlayers() - game.getPlayers().size() > 0) {
-                return game;
+                game.joinPlayer(player);
+                return game.getGameId();
             }
         }
-        return null;
+        GameSession gameSession = new GameSession(lastGameId.getAndIncrement(), DEFAULT_COUNT_OF_PLAYERS_IN_GAME);
+        gameSession.joinPlayer(player);
+        games.add(gameSession);
+        return gameSession.getGameId();
     }
+
+//    @Override
+//    public GameSession getIncompleteGame() {
+//        for(GameSession game: games) {
+//            if(game.getCountOfPlayers() - game.getPlayers().size() > 0) {
+//                return game;
+//            }
+//        }
+//        return null;
+//    }
 
     @Override
     public Set<GameSession> getGames() {
@@ -84,7 +89,7 @@ public class SimpleGameManager implements GameManager {
     }
 
     @Override
-    public void playerIsReady(String playerToken) {
+    public synchronized void playerIsReady(String playerToken) {
         for(GameSession game : games) {
             Player player = game.getPlayer(playerToken);
             if(player != null) {

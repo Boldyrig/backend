@@ -36,8 +36,8 @@ public class GameMechanic implements Tickable {
             int x = bomb.getPosition().getX();
             int y = bomb.getPosition().getX();
             for(int i = -bomb.getPower(); i < bomb.getPower(); i++) {
-                Position position1 = new Position(x + i, y);
-                Position position2 = new Position(x, y + i);
+                Position position1 = new Position(x + i * Replicator.TILE_SIZE, y);
+                Position position2 = new Position(x, y + i * Replicator.TILE_SIZE);
                 gameSession.registerTickable(replicator.addFire(position1));
                 gameSession.registerTickable(replicator.addFire(position2));
                 ReplicaItem itemToDelete1 = replicator.getReplicaItemByPosition(position1);

@@ -126,7 +126,9 @@ public class GameSession {
     }
     
     public void registerTickable(Tickable tickable) {
-        tickables.add(tickable);
+        if(tickable != null) {
+            tickables.add(tickable);
+        }
     }
     
     public void unregisterTickable(Tickable tickable) {

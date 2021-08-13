@@ -36,10 +36,9 @@ public class Replicator {
         this.spawns = spawns;
         Random random = new Random();
         
-        for(int x = 0; x < WIDTH; x += TILE_SIZE) {
-            for(int y = 0; y < HEIGHT; y += TILE_SIZE) {
+        for(int x = 0; x < WIDTH; x += TILE_SIZE + 2) {
+            for(int y = 0; y < HEIGHT; y += TILE_SIZE + 2) {
                 Position position = new Position(x, y);
-                if(spawns.contains(position)) continue;
                 if(random.nextDouble() < PERCENT) {
                     replica.add(new ReplicaItem(
                         id++,
@@ -86,17 +85,18 @@ public class Replicator {
     
     public void addPawn(String token) {
         for(int i = 0; i < spawns.size(); i++) {
-            if(isEmpty(spawns.get(i))) {
-                pawns.add(new Pawn(
-                    id++,
-                    ItemType.PAWN,
-                    spawns.get(i),
-                    Direction.UP,
-                    true,
-                    token
-                ));
-                break;
-            }
+            ReplicaItem replicaItem = getReplicaItemByPosition(spawns.get(i));
+            if(replicaItem != null && replicaItem.getType() == ItemType.PAWN) continue;
+            if(replicaItem != null && replicaItem.getType() == ItemType.WOOD) removeWood(replicaItem);
+            pawns.add(new Pawn(
+                id++,
+                ItemType.PAWN,
+                spawns.get(i),
+                Direction.UP,
+                true,
+                token
+            ));
+            break;
         }
     }
     
@@ -108,7 +108,7 @@ public class Replicator {
                     id++,
                     pawn.getPosition(),
                     180,
-                        3
+                    3
                 );
                 bombs.add(bomb);
             }
@@ -118,9 +118,9 @@ public class Replicator {
 
     public Fire addFire(Position position) {
         Fire fire = new Fire(
-                id++,
-                position,
-                60
+            id++,
+            position,
+            60
         );
         fires.add(fire);
         return fire;
@@ -201,25 +201,25 @@ public class Replicator {
             int targetY = target.getY();
             
             boolean bottomLeftPointInItem = 
-                    targetX > itemX &&
-                    targetX < itemX + TILE_SIZE &&
-                    targetY > itemY &&
-                    targetY < itemY + TILE_SIZE;
+                    targetX >= itemX &&
+                    targetX <= itemX + TILE_SIZE &&
+                    targetY >= itemY &&
+                    targetY <= itemY + TILE_SIZE;
             boolean bottomRightPointInItem = 
-                    targetX + TILE_SIZE > itemX &&
-                    targetX + TILE_SIZE < itemX + TILE_SIZE &&
-                    targetY > itemY &&
-                    targetY < itemY + TILE_SIZE;
+                    targetX + TILE_SIZE >= itemX &&
+                    targetX + TILE_SIZE <= itemX + TILE_SIZE &&
+                    targetY >= itemY &&
+                    targetY <= itemY + TILE_SIZE;
             boolean topLeftPointInItem = 
-                    targetX > itemX &&
-                    targetX < itemX + TILE_SIZE &&
-                    targetY + TILE_SIZE > itemY &&
-                    targetY + TILE_SIZE < itemY + TILE_SIZE;
+                    targetX >= itemX &&
+                    targetX <= itemX + TILE_SIZE &&
+                    targetY + TILE_SIZE >= itemY &&
+                    targetY + TILE_SIZE <= itemY + TILE_SIZE;
             boolean topRightPointInItem = 
-                    targetX + TILE_SIZE > itemX &&
-                    targetX + TILE_SIZE < itemX + TILE_SIZE &&
-                    targetY + TILE_SIZE > itemY &&
-                    targetY + TILE_SIZE < itemY + TILE_SIZE;
+                    targetX + TILE_SIZE >= itemX &&
+                    targetX + TILE_SIZE <= itemX + TILE_SIZE &&
+                    targetY + TILE_SIZE >= itemY &&
+                    targetY + TILE_SIZE <= itemY + TILE_SIZE;
             
             if(bottomLeftPointInItem ||
                     bottomRightPointInItem ||

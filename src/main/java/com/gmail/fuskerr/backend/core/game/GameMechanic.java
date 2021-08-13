@@ -25,7 +25,9 @@ public class GameMechanic implements Tickable {
                     break;
                 case PLANT_BOMB:
                     Tickable bomb = replicator.addBomb(action.getData());
-                    gameSession.registerTickable(bomb);
+                    if(bomb != null) {
+                        gameSession.registerTickable(bomb);
+                    }
                     break;
             }
         });
@@ -33,26 +35,37 @@ public class GameMechanic implements Tickable {
         List<Bomb> removeBombs = new ArrayList<>();
         replicator.getBombs().forEach(bomb -> {
             if(!bomb.isExplosion()) return;
-            int x = bomb.getPosition().getX();
-            int y = bomb.getPosition().getX();
-            for(int i = -bomb.getPower(); i < bomb.getPower(); i++) {
-                Position position1 = new Position(x + i * Replicator.TILE_SIZE, y);
-                Position position2 = new Position(x, y + i * Replicator.TILE_SIZE);
-                gameSession.registerTickable(replicator.addFire(position1));
-                gameSession.registerTickable(replicator.addFire(position2));
-                ReplicaItem itemToDelete1 = replicator.getReplicaItemByPosition(position1);
-                ReplicaItem itemToDelete2 = replicator.getReplicaItemByPosition(position2);
-                if(itemToDelete1 instanceof Pawn) {
-                    Pawn pawn = (Pawn) itemToDelete1;
-                    pawn.setAlive(false);
-                } else {
-                    replicator.removeWood(itemToDelete1);
-                }
-                if(itemToDelete2 instanceof Pawn) {
-                    Pawn pawn = (Pawn) itemToDelete2;
-                    pawn.setAlive(false);
-                } else {
-                    replicator.removeWood(itemToDelete2);
+            for(int i = 0; i <= bomb.getPower(); i++) {
+                for(ExplosionSide side : bomb.getSides()) {
+                    if(side.isStopped()) continue;
+                    int newX = bomb.getPosition().getX();;
+                    int newY = bomb.getPosition().getY();
+                    switch(side.getDirection()) {
+                        case UP:
+                            newY += i * Replicator.TILE_SIZE;
+                            break;
+                        case DOWN:
+                            newY -= i * Replicator.TILE_SIZE;
+                            break;
+                        case RIGHT:
+                            newX += i * Replicator.TILE_SIZE;
+                            break;
+                        case LEFT:
+                            newX -= i * Replicator.TILE_SIZE;
+                            break;
+                    }
+                    Position newPosition = new Position(newX, newY);
+                    gameSession.registerTickable(replicator.addFire(newPosition));
+                    ReplicaItem itemToDelete = replicator.getReplicaItemByPosition(
+                                    new Position(newX + Replicator.TILE_SIZE/2, newY + Replicator.TILE_SIZE/2)
+                    );
+                    if(itemToDelete != null) side.stop();
+                    if(itemToDelete instanceof Pawn) {
+                        Pawn pawn = (Pawn) itemToDelete;
+                        pawn.setAlive(false);
+                    } else {
+                        replicator.removeWood(itemToDelete);
+                    }
                 }
             }
             removeBombs.add(bomb);

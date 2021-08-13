@@ -42,7 +42,6 @@ public class InputActionHandler extends TextWebSocketHandler {
         sessions.remove(session);
     }
 
-    //TODO внедрить AOP
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) {
         MessageActionModel json = gson.fromJson(message.getPayload(), MessageActionModel.class);

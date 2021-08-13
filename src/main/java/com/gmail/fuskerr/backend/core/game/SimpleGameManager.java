@@ -80,7 +80,7 @@ public class SimpleGameManager implements GameManager {
     @Override
     public void addToInputQueue(MessageActionModel messageAction, String token) {
         for(GameSession gameSession : games) {
-            if(gameSession.isFinished()) break;
+            if(gameSession.isFinished()) continue;
             if(gameSession.getPlayer(token) != null) {
                 gameSession.addInputQueue(messageAction);
                 break;
